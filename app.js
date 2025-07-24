@@ -26,8 +26,6 @@ app.use('/uploads/photos', express.static(path.join(__dirname, '../uploads/photo
 app.use('/api/personnes', personRoutes);
 app.use('/api/familles', familleRoutes);
 
-
-// Synchronisation de la base (à faire une seule fois ou en dev)
 sequelize.sync().then(() => {
   app.listen(8000, '0.0.0.0', () => {
     console.log('API Express + MySQL sur http://localhost:8000');
