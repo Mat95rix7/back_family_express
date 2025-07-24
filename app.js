@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
-app.use('/uploads/photos', express.static(path.join(__dirname, '../uploads/photos')));
+app.use('/uploads/photos', express.static(path.join(__dirname, './uploads/photos')));
 app.use('/api/personnes', personRoutes);
 app.use('/api/familles', familleRoutes);
 
