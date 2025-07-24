@@ -10,6 +10,10 @@ const corsMiddleware = (req, res, next) => {
   
     // Headers CORS pour Chrome (le plus permissif possible)
     const origin = req.headers.origin;
+
+    const allowedOrigins = [
+    'https://famillytree.vercel.app',
+  ];
     
     // Permettre toutes les origines localhost/192.168 en développement
     if (!origin || 
@@ -17,7 +21,8 @@ const corsMiddleware = (req, res, next) => {
         origin.includes('127.0.0.1') || 
         origin.includes('192.168') ||
         origin.includes('10.0.') ||
-        origin.startsWith('exp://')) {
+        origin.startsWith('exp://') || 
+        allowedOrigins.includes(origin)) {
       
       res.setHeader('Access-Control-Allow-Origin', origin || '*');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
