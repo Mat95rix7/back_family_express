@@ -6,7 +6,10 @@ const auth = require('../middlewares/auth');
 // router.use(express.json());
 // router.use(express.urlencoded({ extended: true }));
 
-router.get('/', auth, familleController.getHommesMaries);
-router.get('/:pereId', auth, familleController.getFamilleByHommeMarie);
+router.get('/', familleController.getHommesMaries);
+router.get('/:pereId', familleController.getFamilleByHommeMarie);
+
+// router.get('/', auth, familleController.getHommesMaries);
+// router.get('/:pereId', auth, familleController.getFamilleByHommeMarie);
 
 module.exports = router;
