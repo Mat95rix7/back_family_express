@@ -1,5 +1,6 @@
 const Person = require('../models/Person');
 const getAge = require('../utils/getAge')
+const imagekit = require('../config/imagekit');
 
 exports.getAll = async (req, res) => {
   const personnes = await Person.findAll({
@@ -27,7 +28,16 @@ exports.getOne = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    let photoFile = req.file ? req.file.filename : null;
+    let photoUrl = null;
+    if (req.file) {
+      const result = await imagekit.upload({
+        file: req.file.buffer,
+        fileName: `${Date.now()}-${req.file.originalname}`,
+        folder: "/users"
+      });
+      photoUrl = result.url;
+    }
+    
     const data = {
       first_name: req.body.first_name,
       last_name: req.body.last_name,
@@ -39,7 +49,7 @@ exports.create = async (req, res) => {
       conjointId: req.body.conjointId ? Number(req.body.conjointId) : null,
       date_deces: req.body.date_deces || req.body.dateDeces || null,
       notes: req.body.notes || null,
-      photo: photoFile
+      photo: photoUrl
     };
 
     const personne = await Person.create(data);
@@ -57,11 +67,20 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  console.log(req);
+
   try {
     const personne = await Person.findByPk(req.params.id);
     if (!personne) return res.status(404).json({ error: 'Personne non trouvée' });
-    let photoFile = req.file ? req.file.filename : personne.photo;
+    let photoUrl = personne.photo;
+
+    if (req.file) {
+      const result = await imagekit.upload({
+        file: req.file.buffer,
+        fileName: `${Date.now()}-${req.file.originalname}`,
+        folder: "/users"
+      });
+      photoUrl = result.url;
+    }
     const data = {
       first_name: req.body.first_name,
       last_name: req.body.last_name,
@@ -73,7 +92,7 @@ exports.update = async (req, res) => {
       conjointId: req.body.conjointId ? Number(req.body.conjointId) : null,
       date_deces: req.body.date_deces || req.body.dateDeces || null,
       notes: req.body.notes || null,
-      photo: photoFile
+      photo: photoUrl
     };
         // Gestion de la réciprocité du conjoint
     if (personne.conjointId && personne.conjointId !== data.conjointId) {
