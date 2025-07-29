@@ -10,7 +10,12 @@ exports.getAll = async (req, res) => {
       { model: Person, as: 'conjoint', attributes: ['id', 'first_name', 'last_name'] }
     ]
   });
-  res.json(personnes);
+  const personnesAvecAge = personnes.map(personne => {
+      const json = personne.toJSON();
+      json.age = getAge(json.birth_date, json.date_deces);
+      return json;
+    });
+  res.json(personnesAvecAge);
 };
 
 exports.getOne = async (req, res) => {

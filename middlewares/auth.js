@@ -3,7 +3,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = (req, res, next) => {
   const auth = req.headers.authorization;
-  console.log('[GENEALOGIE] Headers:', req.headers);
   if (!auth) return res.status(401).json({ error: 'Token manquant' });
   const token = auth.split(' ')[1];
   try {

@@ -1,21 +1,9 @@
 // ===== middleware/cors.js =====
 const corsMiddleware = (req, res, next) => {
-    // Debug complet
-    // console.log('🔍 CORS Request:', {
-    //   method: req.method,
-    //   origin: req.headers.origin,
-    //   url: req.url,
-    //   userAgent: req.headers['user-agent']?.substring(0, 50)
-    // });
-  
-    // Headers CORS pour Chrome (le plus permissif possible)
     const origin = req.headers.origin;
-
     const allowedOrigins = [
     'https://famillytree.vercel.app',
   ];
-    
-    // Permettre toutes les origines localhost/192.168 en développement
     if (!origin || 
         origin.includes('localhost') || 
         origin.includes('127.0.0.1') || 
@@ -51,12 +39,9 @@ const corsMiddleware = (req, res, next) => {
     
     // Réponse immédiate pour OPTIONS
     if (req.method === 'OPTIONS') {
-      console.log('✅ Preflight OPTIONS handled');
       res.status(204).send('');
       return;
     }
-  
-    console.log('✅ CORS headers set, continuing...');
     next();
   };
   
