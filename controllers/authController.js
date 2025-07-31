@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { Op } = require('sequelize');
 
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -28,6 +29,7 @@ exports.login = async (req, res) => {
 
 // Inscription
 exports.register = async (req, res) => {
+
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) return res.status(400).json({ error: 'Veuillez fournir un nom d’utilisateur, un email et un mot de passe' });
@@ -47,7 +49,7 @@ exports.register = async (req, res) => {
   const user = await User.create({ username, email, password: hash });
 
   const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-
+  console.log(user);
   res.json({ token });
   } catch (err) {
     console.error('Erreur lors de la création de l\'utilisateur :', err);
