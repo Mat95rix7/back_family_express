@@ -8,22 +8,88 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
 // Connexion
+// exports.login = async (req, res) => {
+//   const { username, password } = req.body;
+//   if (!username || !password) return res.status(400).json({ error: 'Veuillez fournir un nom d’utilisateur et un mot de passe' });
+//   try {
+//       const user = await User.findOne({ where: { username } });
+//       if (!user) return res.status(401).json({ error: 'Utilisateur inconnu' });
+
+//       const valid = await bcrypt.compare(password, user.password);
+//       if (!valid) return res.status(401).json({ error: 'Email/Mot de passe incorrect' });
+
+//       const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
+//       res.json({ token });
+//   } catch (err) {
+//     console.error('Erreur login :', err);
+//     return res.status(500).json({ message: 'Erreur serveur lors de la connexion.' });
+//   }
+// };
+
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Veuillez fournir un nom d’utilisateur et un mot de passe' });
+  const { email, password } = req.body;
+  
+  // Validation des champs requis
+  if (!email || !password) {
+    return res.status(400).json({ 
+      error: 'Veuillez fournir un email et un mot de passe' 
+    });
+  }
+
+  // Validation du format email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ 
+      error: 'Format d\'email invalide' 
+    });
+  }
+
+  // Validation de la longueur du mot de passe
+  if (password.length < 6) {
+    return res.status(400).json({ 
+      error: 'Le mot de passe doit contenir au moins 6 caractères' 
+    });
+  }
+
   try {
-      const user = await User.findOne({ where: { username } });
-      if (!user) return res.status(401).json({ error: 'Utilisateur inconnu' });
+    // Recherche de l'utilisateur par email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ 
+        error: 'Email ou mot de passe incorrect' 
+      });
+    }
 
-      const valid = await bcrypt.compare(password, user.password);
-      if (!valid) return res.status(401).json({ error: 'Email/Mot de passe incorrect' });
+    // Vérification du mot de passe
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ 
+        error: 'Email ou mot de passe incorrect' 
+      });
+    }
 
-      const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    // Génération du token JWT
+    const token = jwt.sign(
+      { 
+        id: user.id,
+        username: user.username, 
+        email: user.email, 
+        role: user.role 
+      }, 
+      JWT_SECRET, 
+      { expiresIn: JWT_EXPIRES_IN }
+    );
 
-      res.json({ token });
+    res.json({ 
+      token
+    });
+
   } catch (err) {
     console.error('Erreur login :', err);
-    return res.status(500).json({ message: 'Erreur serveur lors de la connexion.' });
+    return res.status(500).json({ 
+      message: 'Erreur serveur lors de la connexion.' 
+    });
   }
 };
 
@@ -49,7 +115,7 @@ exports.register = async (req, res) => {
   const user = await User.create({ username, email, password: hash });
 
   const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-  console.log(user);
+
   res.json({ token });
   } catch (err) {
     console.error('Erreur lors de la création de l\'utilisateur :', err);
